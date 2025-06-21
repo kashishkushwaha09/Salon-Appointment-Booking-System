@@ -5,13 +5,18 @@ const express=require('express');
 const app=express();
 const db=require('./utils/db-connection');
 const errorMiddleware=require('./middlewares/errorHandler');
+const authenticateUser=require('./middlewares/authenticateUser');
+require('./models');
 const userRoute=require('./routes/userRoute');
-
+const serviceRoute=require('./routes/serviceRoute');
+const availabilityRoute=require('./routes/availabilityRoute');
 app.use(express.static('public'));
 app.use(express.json());
 
 // routes middleware
 app.use('/api/users',userRoute);
+app.use('/api/services',authenticateUser,serviceRoute);
+app.use('/api/availability',authenticateUser,availabilityRoute);
 app.use(errorMiddleware);
 
 db.sync({alter:true}).then(()=>{

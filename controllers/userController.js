@@ -3,10 +3,10 @@ const userService=require('../services/userService');
 
 
 const signUpUser=async(req,res)=>{  
-    const {name,email,password,role}=req.body;
+    const {name,phone,gender,email,password,role}=req.body;
     try {
-      
-        const newUser=await userService.signUpUser({name,email,password,role});
+      const avatarUrl = req.file;
+        const newUser=await userService.signUpUser({name,phone,gender,email,password,role,avatarUrl});
         if(!newUser){
             throw new AppError("Error creating user", 500);
         }

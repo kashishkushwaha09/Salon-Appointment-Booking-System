@@ -12,6 +12,14 @@ const User=sequelize.define('User',{
         type:DataTypes.STRING,
         allowNull:false
     },
+    phone:{
+          type:DataTypes.STRING,
+        allowNull:false
+    },
+    gender:{
+      type: DataTypes.ENUM('male', 'female','other'),
+      allowNull:false
+    },
     email:{
         type:DataTypes.STRING,
         allowNull:false,
@@ -24,6 +32,11 @@ const User=sequelize.define('User',{
     role: {
     type: DataTypes.ENUM('customer', 'admin'),
     defaultValue: 'customer'
+  },
+  avatarUrl:{
+        type:DataTypes.STRING,
+         allowNull: true, 
+         defaultValue: null
   }
 });
  
