@@ -1,0 +1,14 @@
+const express=require('express');
+const router=express.Router();
+const isAdmin=require('../middlewares/isAdmin');
+const staffController=require('../controllers/staffController');
+const staffAvailabilityController=require('../controllers/staffAvailabilityController');
+router.post('/',isAdmin,staffController.addStaff);
+router.get('/',staffController.getAll);
+router.put('/:id',isAdmin,staffController.updateStaff);
+router.post('/:id/availability',isAdmin,staffAvailabilityController.setAvailabilityForStaff);
+router.get('/:id/availability',isAdmin,staffAvailabilityController.getAvailabilityForStaff);
+router.put('/availability/:availabilityId',isAdmin,staffAvailabilityController.updateAvailabilitySlot);
+router.delete('/availability/:availabilityId',isAdmin,staffAvailabilityController.deleteAvailabilitySlot);
+router.post('/:id/assign-service',isAdmin,staffController.assignServicesToStaff);
+module.exports=router;

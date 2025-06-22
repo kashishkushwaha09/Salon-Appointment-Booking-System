@@ -1,9 +1,10 @@
 const { AppError } = require("../utils/appError");
 const ServiceAvailability=require('../models/serviceAvailabilty');
 
-const setAvailability=async(newData)=>{
+const setAvailability=async(serviceId,newData)=>{
 try {
     
+    await ServiceAvailability.destroy({ where: { serviceId } });
     const availability=await ServiceAvailability.bulkCreate(newData);
        return availability;
     } catch (error) {

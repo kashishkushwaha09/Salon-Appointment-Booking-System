@@ -10,6 +10,7 @@ require('./models');
 const userRoute=require('./routes/userRoute');
 const serviceRoute=require('./routes/serviceRoute');
 const availabilityRoute=require('./routes/availabilityRoute');
+const staffRoute=require('./routes/staffRoute');
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/users',userRoute);
 app.use('/api/services',authenticateUser,serviceRoute);
 app.use('/api/availability',authenticateUser,availabilityRoute);
+app.use('/api/staff',authenticateUser,staffRoute);
 app.use(errorMiddleware);
 
 db.sync({alter:true}).then(()=>{

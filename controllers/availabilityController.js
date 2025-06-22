@@ -7,7 +7,7 @@ const setAvailability = async (req, res) => {
         const ServiceId = req.params.id;
         const availability = req.body; // array of {dayOfWeek, startTime, endTime}
         const newData = availability.map(a => ({ ...a, ServiceId }));
-        const newAvailability = await availabilityService.setAvailability(newData);
+        const newAvailability = await availabilityService.setAvailability(ServiceId,newData);
         res.status(201).json({ message: 'Availability set successfully', data: newAvailability, success: true });
     } catch (error) {
         if (!(error instanceof AppError)) {
