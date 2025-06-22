@@ -1,0 +1,11 @@
+const express=require('express');
+const router=express.Router();
+const appointmentController=require('../controllers/appointmentController');
+const isAdmin=require('../middlewares/isAdmin');
+router.get('/available-slots',appointmentController.getAvailableSlots);
+router.post('/book',appointmentController.bookAppointment);
+router.get('/my',appointmentController.getMyAppointments);
+router.get('/all',isAdmin,appointmentController.getAllAppointments);
+router.put('/:id/reschedule', appointmentController.rescheduleAppointment);
+router.delete('/:id',appointmentController.cancelAppointment);
+module.exports=router;

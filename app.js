@@ -7,10 +7,12 @@ const db=require('./utils/db-connection');
 const errorMiddleware=require('./middlewares/errorHandler');
 const authenticateUser=require('./middlewares/authenticateUser');
 require('./models');
+require('./cron/appointmentReminder');
 const userRoute=require('./routes/userRoute');
 const serviceRoute=require('./routes/serviceRoute');
 const availabilityRoute=require('./routes/availabilityRoute');
 const staffRoute=require('./routes/staffRoute');
+const appointmentRoute=require('./routes/appointmentRoute');
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -19,6 +21,7 @@ app.use('/api/users',userRoute);
 app.use('/api/services',authenticateUser,serviceRoute);
 app.use('/api/availability',authenticateUser,availabilityRoute);
 app.use('/api/staff',authenticateUser,staffRoute);
+app.use('/api/appointments',authenticateUser,appointmentRoute);
 app.use(errorMiddleware);
 
 db.sync({alter:true}).then(()=>{

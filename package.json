@@ -17,6 +17,8 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "mysql2": "^3.14.1",
-    "sequelize": "^6.37.7"
+    "node-cron": "^4.1.1",
+    "sequelize": "^6.37.7",
+    "sib-api-v3-sdk": "^8.5.0"
   }
 }

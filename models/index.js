@@ -3,6 +3,7 @@ const ServiceAvailability=require('./serviceAvailabilty');
 const Staff = require('./staffModel');
 const StaffAvailability=require('./staffAvailability')
 const Appointment=require('./appointmentModel');
+const User=require('./userModel');
 Service.hasMany(ServiceAvailability);
 ServiceAvailability.belongsTo(Service);
 
