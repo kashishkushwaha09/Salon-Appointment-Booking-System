@@ -3,10 +3,10 @@ const staffService = require('../services/staff');
 
 const addStaff = async (req, res) => {
     try {
-        let { name, bio, specializations } = req.body;
+        let { name,email,password,bio, specializations } = req.body;
 
-        if (!name || !specializations) {
-            throw new AppError('Name and specializations are required', 400);
+        if (!name || !email || !password || !specializations) {
+            throw new AppError('Name, email, password and specializations are required', 400);
         }
 
         const specArray = Array.isArray(specializations)
@@ -14,7 +14,7 @@ const addStaff = async (req, res) => {
             : specializations.split(',').map(s => s.trim());
 
         specializations = specArray;
-        const newStaff = await staffService.addStaff(name, bio, specializations)
+        const newStaff = await staffService.addStaff(name,email,password,bio, specializations);
 
         res.status(201).json({
             message: 'Staff added successfully',

@@ -1,12 +1,24 @@
 const { AppError } = require("../utils/appError");
 const Staff = require('../models/staffModel');
 const Service = require('../models/serviceModel');
+const User=require('../models/userModel');
 const StaffAvailability = require('../models/staffAvailability');
 const ServiceAvailability=require('../models/serviceAvailabilty');
-const addStaff = async (name, bio, specializations) => {
+const addStaff = async (name,email,password,bio,specializations) => {
     try {
-        const newStaff = await Staff.create({
-            name,
+         const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      throw new AppError('User with this email already exists', 400);
+    }
+     const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'staff'
+    });
+      const newStaff = await Staff.create({
+           userId: user.id, 
             bio,
             specializations
         });
@@ -20,12 +32,22 @@ const addStaff = async (name, bio, specializations) => {
 }
 const getAll = async () => {
     try {
-        const staffList = await Staff.findAll({
-            include: [
-                { model: Service },
-                { model: StaffAvailability, as: 'availability' }
-            ]
-        });
+          const staffList = await Staff.findAll({
+      include: [
+        {
+          model: Service,
+          through: { attributes: [] }
+        },
+        {
+          model: StaffAvailability,
+          as: 'availability'
+        },
+        {
+          model: User,
+          attributes: ['name', 'email']
+        }
+      ]
+    });
         return staffList;
     } catch (error) {
         if (!(error instanceof AppError)) {
@@ -40,11 +62,16 @@ const updateStaff = async (staffId, name, bio, specializations) => {
         if (!staff) {
             throw new AppError('Staff not found', 404);
         }
-        await staff.update({
-            name: name ?? staff.name,
-            bio: bio ?? staff.bio,
-            specializations: specializations ?? staff.specializations
-        });
+         if (name) {
+    const user = await User.findByPk(staff.userId);
+    if (user) {
+      user.name = name;
+      await user.save();
+    }
+  }
+      staff.bio = bio ?? staff.bio;
+  staff.specializations = specializations ?? staff.specializations;
+  await staff.save();
 
         return staff;
     } catch (error) {

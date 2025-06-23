@@ -1,5 +1,5 @@
 const SibApiV3Sdk = require('sib-api-v3-sdk');
-module.exports=async(email,details)=>{
+module.exports=async(email,subject,htmlContent)=>{
     try {
         var defaultClient = SibApiV3Sdk.ApiClient.instance;
         var apiKey = defaultClient.authentications['api-key'];
@@ -17,18 +17,8 @@ module.exports=async(email,details)=>{
         const response = await tranEmailApi.sendTransacEmail({
           sender,
           to: receivers,
-          subject: 'Appointment Reminder!',
-          htmlContent: `
-           <h2>Hello ${details.name},</h2>
-<p>This is a friendly reminder for your appointment:</p>
-<ul>
-  <li><strong>Service:</strong>${details.serviceName}</li>
-  <li><strong>Staff:</strong>${details.staffName}</li>
-  <li><strong>Date:</strong>${details.date}</li>
-  <li><strong>Time:</strong>${details.time}</li>
-</ul>
-<p>Looking forward to seeing you!</p>
-          `
+          subject:subject,
+          htmlContent:htmlContent
         });
     
         console.log('Email sent:', response);

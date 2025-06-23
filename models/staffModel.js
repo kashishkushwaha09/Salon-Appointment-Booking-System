@@ -8,9 +8,10 @@ const Staff = sequelize.define('Staff', {
             autoIncrement:true,
             allowNull:false
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    unique: true 
   },
   bio: {
     type: DataTypes.TEXT

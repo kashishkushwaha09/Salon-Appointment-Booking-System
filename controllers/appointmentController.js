@@ -7,6 +7,7 @@ const ServiceAvailability = require('../models/serviceAvailabilty');
 const User=require('../models/userModel');
 const SibApiV3Sdk = require('sib-api-v3-sdk');
 const { Op } = require("sequelize");
+const sendAppointmentEmail=require("../utils/sendEmail");
 
 const getAvailableSlots = async (req, res) => {
     try {
@@ -35,7 +36,11 @@ const getAvailableSlots = async (req, res) => {
           model: StaffAvailability,
           as: 'availability',
           where: { dayOfWeek }
-        }
+        },
+          {
+      model: User,
+      attributes: ['name']
+    }
       ]
     });
     const results = [];
@@ -71,7 +76,7 @@ const getAvailableSlots = async (req, res) => {
 
       results.push({
         staffId: staff.id,
-        staffName: staff.name,
+        staffName:staff.User?.name || 'Unknown',
         availableSlots: slots
       });
     }
@@ -116,59 +121,33 @@ const bookAppointment = async (req, res) => {
       status: 'confirmed'
     });
     const user=req.user;
-  await sendBookingConfirmationEmail(user.email, {
-  name: user.name,
-  serviceName: service.name,
-  date,
-  startTime,
-  endTime
-});
+    const subject='Appointment Confirmed!';
+    const htmlContent=`
+        <h2>Hey ${user.name},</h2>
+        <p>Your appointment for <strong>${service.name}</strong> has been confirmed!</p>
+        <p><strong>Date:</strong> ${date}</p>
+        <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+        <p>Thank you for choosing our salon</p>
+      `;
+  await sendAppointmentEmail(user.email,subject,htmlContent);
     res.status(201).json({ message: 'Appointment booked successfully', appointment });
   } catch (error) {
     console.error(error);
   throw new AppError('Error booking appointment', 500);
   }
 };
-const sendBookingConfirmationEmail=async(email, details)=>{
- try {
-    var defaultClient = SibApiV3Sdk.ApiClient.instance;
-    var apiKey = defaultClient.authentications['api-key'];
-    apiKey.apiKey = process.env.MAILING_API_KEY;
-
-    const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
-
-    const sender = {
-      email: process.env.MY_EMAIL,
-      name: 'Khushboo Kachhi'
-    };
-
-    const receivers = [{ email }];
-
-    const response = await tranEmailApi.sendTransacEmail({
-      sender,
-      to: receivers,
-      subject: 'Appointment Confirmed!',
-      htmlContent: `
-        <h2>Hey ${details.name},</h2>
-        <p>Your appointment for <strong>${details.serviceName}</strong> has been confirmed!</p>
-        <p><strong>Date:</strong> ${details.date}</p>
-        <p><strong>Time:</strong> ${details.startTime} - ${details.endTime}</p>
-        <p>Thank you for choosing our salon</p>
-      `
-    });
-
-    console.log('Email sent:', response);
-  } catch (err) {
-    console.log('Failed to send email:', err.message);
-  }
-}
 
 const getMyAppointments = async (req, res) => {
   try {
     const userId = req.user.id;
     const appointments = await Appointment.findAll({
       where: { userId },
-      include: [Service, Staff]
+      include: [Service,
+        {
+      model: Staff,
+      include: { model: User, attributes: ['name'] }
+    }
+      ]
     });
 
     res.status(200).json({ appointments });
@@ -182,9 +161,12 @@ const getAllAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.findAll({
   include: [
-    { model: User },
+    { model: User, attributes: ['name', 'email'] },,
     { model: Service },
-    { model: Staff }
+     {
+      model: Staff,
+      include: { model: User, attributes: ['name'] } 
+    }
   ]
 });
 
@@ -199,7 +181,9 @@ const rescheduleAppointment = async (req, res) => {
     const appointmentId = req.params.id;
     const { date, startTime } = req.body;
 
-    const appointment = await Appointment.findByPk(appointmentId);
+    const appointment = await Appointment.findByPk(appointmentId,{
+      include:[User,Service]
+    });
     if (!appointment) 
       throw new AppError('Appointment not found',404);
 
@@ -207,10 +191,10 @@ const rescheduleAppointment = async (req, res) => {
       throw new AppError('Only confirmed appointments can be rescheduled',400);
 
     }
-    const service = await Service.findByPk(appointment.serviceId);
-    if (!service)
-       throw new AppError('Service not found',404);
-      
+   
+    
+      const service = appointment.Service;
+    const user = appointment.User;
     const startDateTime = new Date(`${date}T${startTime}`);
     const endDateTime = new Date(startDateTime.getTime() + service.duration * 60000);
     const endTime = endDateTime.toTimeString().substring(0, 5);
@@ -232,6 +216,15 @@ const rescheduleAppointment = async (req, res) => {
     appointment.status = 'rescheduled';
     await appointment.save();
 
+     const subject = 'Appointment Rescheduled';
+    const htmlContent = `
+      <h2>Hi ${user.name},</h2>
+      <p>Your appointment for <strong>${service.name}</strong> has been <span style="color:orange;"><strong>rescheduled</strong></span>.</p>
+      <p><strong>New Date:</strong> ${date}</p>
+      <p><strong>New Time:</strong> ${startTime} - ${endTime}</p>
+    `;
+
+    await sendAppointmentEmail(user.email, subject, htmlContent);
     res.status(200).json({ message: 'Appointment rescheduled', appointment });
   } catch (err) {
     console.error(err);
@@ -241,12 +234,28 @@ const rescheduleAppointment = async (req, res) => {
 const cancelAppointment = async (req, res) => {
   try {
     const appointmentId = req.params.id;
-    const appointment = await Appointment.findByPk(appointmentId);
+    const appointment = await Appointment.findByPk(appointmentId,{
+      include:[User,Service]
+    });
 
     if (!appointment) 
-      throw new AppError('Appointment not found',404)
-      await appointment.destroy();
+      throw new AppError('Appointment not found',404);
 
+     appointment.status = 'cancelled';
+     await appointment.save();
+       const service = appointment.Service;
+    const user = appointment.User;
+
+     const subject = 'Appointment cancelled';
+   const htmlContent = `
+  <h2>Hi ${user.name},</h2>
+  <p>Your appointment for <strong>${service.name}</strong> has been <span style="color:red;"><strong>cancelled</strong></span>.</p>
+  <p><strong>Original Date:</strong> ${appointment.date}</p>
+  <p><strong>Original Time:</strong> ${appointment.startTime} - ${appointment.endTime}</p>
+  <p>If this was a mistake or you need to rebook, please visit our booking page.</p>
+  <p>We hope to serve you soon!</p>
+`;
+    await sendAppointmentEmail(user.email, subject, htmlContent);
     res.status(200).json({ message: 'Appointment cancelled (deleted) successfully' });
   
   } catch (err) {
