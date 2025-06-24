@@ -38,14 +38,20 @@ Staff.hasMany(Appointment, { foreignKey: 'staffId' });
 Appointment.belongsTo(Service, { foreignKey: 'serviceId' });
 Service.hasMany(Appointment, { foreignKey: 'serviceId' });
 
-Review.belongsTo(User, { foreignKey: 'userId' });
-Review.belongsTo(Service, { foreignKey: 'serviceId' });
-Review.belongsTo(Staff, { foreignKey: 'staffId' });
 
-User.hasMany(Review);
-Service.hasMany(Review);
-Staff.hasMany(Review);
+Review.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Review, { foreignKey: 'userId' });
+
+Review.belongsTo(Appointment, { foreignKey: 'appointmentId' });
+Appointment.hasOne(Review, { foreignKey: 'appointmentId' });
+
+Review.belongsTo(Service, { foreignKey: 'serviceId' });
+Service.hasMany(Review, { foreignKey: 'serviceId' });
+
+Review.belongsTo(Staff, { foreignKey: 'staffId' });
+Staff.hasMany(Review, { foreignKey: 'staffId' });
+
 
 module.exports={
-    Service,ServiceAvailability,Staff,StaffAvailability,Appointment
+    Service,ServiceAvailability,Staff,StaffAvailability,Appointment,Review
 }

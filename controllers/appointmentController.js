@@ -5,7 +5,7 @@ const Appointment = require('../models/appointmentModel');
 const StaffAvailability = require('../models/staffAvailability');
 const ServiceAvailability = require('../models/serviceAvailabilty');
 const User=require('../models/userModel');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+
 const { Op } = require("sequelize");
 const sendAppointmentEmail=require("../utils/sendEmail");
 
@@ -167,7 +167,8 @@ const getAllAppointments = async (req, res) => {
       model: Staff,
       include: { model: User, attributes: ['name'] } 
     }
-  ]
+  ],
+  order: [['date', 'DESC']]
 });
 
     res.status(200).json({ appointments });
@@ -180,19 +181,23 @@ const rescheduleAppointment = async (req, res) => {
   try {
     const appointmentId = req.params.id;
     const { date, startTime } = req.body;
-
+  
     const appointment = await Appointment.findByPk(appointmentId,{
       include:[User,Service]
     });
     if (!appointment) 
       throw new AppError('Appointment not found',404);
 
+       const isAdmin = req.user.role === 'admin';
+const isOwner = req.user.id === appointment.userId;
+    if (!isAdmin && !isOwner) {
+  throw new AppError('You are not authorized to modify this appointment', 403);
+}
     if (appointment.status !== 'confirmed') {
       throw new AppError('Only confirmed appointments can be rescheduled',400);
 
     }
-   
-    
+ 
       const service = appointment.Service;
     const user = appointment.User;
     const startDateTime = new Date(`${date}T${startTime}`);
@@ -241,6 +246,11 @@ const cancelAppointment = async (req, res) => {
     if (!appointment) 
       throw new AppError('Appointment not found',404);
 
+         const isAdmin = req.user.role === 'admin';
+const isOwner = req.user.id === appointment.userId;
+    if (!isAdmin && !isOwner) {
+  throw new AppError('You are not authorized to modify this appointment', 403);
+}
      appointment.status = 'cancelled';
      await appointment.save();
        const service = appointment.Service;
