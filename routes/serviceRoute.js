@@ -5,6 +5,7 @@ const isAdmin=require('../middlewares/isAdmin');
 const serviceController=require('../controllers/serviceController');
 const availabilityController=require('../controllers/availabilityController');
 router.get('/',isAdmin,serviceController.getAllServices);
+router.get('/:id',isAdmin,serviceController.getServiceById);
 router.post('/',isAdmin,serviceController.addService);
 router.put('/:id',isAdmin,serviceController.updateService);
 router.delete('/:id',isAdmin,serviceController.deleteService);

@@ -70,6 +70,17 @@ const getAllServices=async()=>{
     }
 
 }
+const getServiceById=async(id)=>{
+    try {
+        const service = await Service.findByPk(id);
+        return service;
+    } catch (error) {
+        if (!(error instanceof AppError)) {
+            error = new AppError(error.message, 500);;
+        }
+        throw error;
+    }
+}
 module.exports = {
-    createService, updateService, deleteService,getAllServices
+    createService, updateService, deleteService,getAllServices,getServiceById
 }

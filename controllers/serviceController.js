@@ -65,4 +65,19 @@ const getAllServices=async(req,res)=>{
              throw error;  
     }
 }
-module.exports={addService,updateService,deleteService,getAllServices};
+const getServiceById=async(req,res)=>{
+     try {
+      const {id}=req.params;
+        const service=await serviceService.getServiceById(id);
+    res.status(200).json({
+      message: 'Service fetched successfully',
+      service
+    });
+    } catch (error) {
+       if(!(error instanceof AppError)){
+              error= new AppError(error.message, 500);;
+             }
+             throw error;  
+    }
+}
+module.exports={addService,updateService,deleteService,getAllServices,getServiceById};
