@@ -1,6 +1,6 @@
 const { AppError } = require("../utils/appError");
 const Service = require('../models/serviceModel');
-
+const ServiceAvailability = require('../models/serviceAvailabilty');
 const createService = async (name, description, duration, price) => {
     try {
         const existing = await Service.findOne({ where: { name } });
@@ -49,6 +49,9 @@ const deleteService = async (id) => {
         if (!service) {
             throw new AppError('Service not found', 404);
         }
+        await ServiceAvailability.destroy({
+            where: { ServiceId: id }
+        });
         await service.destroy();
     } catch (error) {
         if (!(error instanceof AppError)) {
@@ -58,8 +61,8 @@ const deleteService = async (id) => {
     }
 
 }
-const getAllServices=async()=>{
-  try {
+const getAllServices = async () => {
+    try {
         const services = await Service.findAll();
         return services;
     } catch (error) {
@@ -70,7 +73,7 @@ const getAllServices=async()=>{
     }
 
 }
-const getServiceById=async(id)=>{
+const getServiceById = async (id) => {
     try {
         const service = await Service.findByPk(id);
         return service;
@@ -82,5 +85,5 @@ const getServiceById=async(id)=>{
     }
 }
 module.exports = {
-    createService, updateService, deleteService,getAllServices,getServiceById
+    createService, updateService, deleteService, getAllServices, getServiceById
 }

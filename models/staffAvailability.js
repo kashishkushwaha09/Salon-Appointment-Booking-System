@@ -22,4 +22,5 @@ const StaffAvailability = sequelize.define('StaffAvailability', {
 });
 
 
+
 module.exports = StaffAvailability;

@@ -1,7 +1,7 @@
 const Staff = require('../models/staffModel');
 const StaffAvailability = require('../models/staffAvailability');
 const { AppError } = require('../utils/appError');
-
+const sequelize= require('../utils/db-connection')
 const setAvailabilityForStaff = async (staffId, availability) => {
     try {
 
@@ -13,7 +13,7 @@ const setAvailabilityForStaff = async (staffId, availability) => {
             ...slot,
             staffId
         }));
-         await StaffAvailability.destroy({ where: { staffId } });
+        //  await StaffAvailability.destroy({ where: { staffId } });
         const newAvailabilty = await StaffAvailability.bulkCreate(data);
         return newAvailabilty;
     } catch (error) {
@@ -29,7 +29,9 @@ const getAvailabilityForStaff = async (staffId) => {
     const staff = await Staff.findByPk(staffId, {
       include: [{
         model: StaffAvailability,
-        as: 'availability'
+        as: 'availability',
+        separate: true,
+        order: [sequelize.literal(`FIELD(dayOfWeek, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')`)]
       }]
     });
 

@@ -1,9 +1,14 @@
 const staffAvailabilityService=require('../services/staffAvailabiltyService');
+const { AppError } = require('../utils/appError');
 
 const setAvailabilityForStaff = async (req, res) => {
   try {
     const staffId = req.params.id;
-    const availability = req.body;  //array
+    const availability = req.body;  //array of dayOfWeek,startTime,endTime
+    if (!Array.isArray(availability) || availability.length === 0) {
+      throw new AppError('Please provide at least one availability slot.',400);
+}
+
      const data=await staffAvailabilityService.setAvailabilityForStaff(staffId,availability);
     res.status(201).json({
       message: 'Availability updated successfully',

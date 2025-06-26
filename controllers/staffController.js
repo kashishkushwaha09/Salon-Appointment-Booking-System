@@ -1,11 +1,27 @@
 const { AppError } = require("../utils/appError");
 const staffService = require('../services/staff');
 
+const getById=async (req,res)=>{
+     try {
+        const {id}=req.params;
+        console.log(`staff get by id ${id}`);
+        const staff= await staffService.getById(id);
+        res.status(200).json({
+            message: 'Staff fetched successfully',
+            staff
+        });
+    } catch (error) {
+        if (!(error instanceof AppError)) {
+            error = new AppError(error.message, 500);;
+        }
+        throw error;
+    }
+}
 const addStaff = async (req, res) => {
     try {
-        let { name,email,password,bio, specializations } = req.body;
+        let { name,email,phone,gender,password,bio, specializations } = req.body;
 
-        if (!name || !email || !password || !specializations) {
+        if (!name || !email || !phone || !gender || !password || !specializations) {
             throw new AppError('Name, email, password and specializations are required', 400);
         }
 
@@ -14,7 +30,7 @@ const addStaff = async (req, res) => {
             : specializations.split(',').map(s => s.trim());
 
         specializations = specArray;
-        const newStaff = await staffService.addStaff(name,email,password,bio, specializations);
+        const newStaff = await staffService.addStaff(name,email,phone,gender,password,bio, specializations);
 
         res.status(201).json({
             message: 'Staff added successfully',
@@ -44,7 +60,7 @@ const getAll = async (req, res) => {
 const updateStaff = async (req, res) => {
     try {
         const staffId = req.params.id;
-        let { name, bio, specializations } = req.body;
+       let { name, email, phone, gender, password, bio, specializations } = req.body;
 
         const specArray = Array.isArray(specializations)
             ? specializations
@@ -52,7 +68,10 @@ const updateStaff = async (req, res) => {
                 ? specializations.split(',').map(s => s.trim())
                 : staff.specializations;
         specializations = specArray;
-        const staff = await staffService.updateStaff(staffId, name, bio, specializations);
+        const staff = await staffService.updateStaff(
+             staffId,
+      { name, email, phone, gender, password, bio, specializations: specArray }
+        );
         res.status(200).json({
             message: 'Staff updated successfully',
             staff
@@ -82,6 +101,21 @@ const assignServicesToStaff = async (req, res) => {
     }
 
 }
+const removeStaff=async (req,res)=>{
+     try {
+        const {id}=req.params;
+        await staffService.deleteStaff(id);
+        res.status(200).json({
+            message: 'Staff deleted successfully',
+        });
+    } catch (error) {
+        if (!(error instanceof AppError)) {
+            error = new AppError(error.message, 500);;
+        }
+        throw error;
+    }
+}
+
 module.exports = {
-    addStaff, getAll, updateStaff, assignServicesToStaff
+    getById,addStaff, getAll, updateStaff, assignServicesToStaff,removeStaff
 }

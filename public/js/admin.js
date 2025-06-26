@@ -81,7 +81,6 @@ async function editService(id) {
     form.price.value = s.price;
 
     editingServiceId = id;
-    form.querySelector('button[type="submit"]').textContent = 'Update Service';
      showEditMode();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -100,6 +99,9 @@ async function deleteService(id) {
       headers: { Authorization: `Bearer ${token}` }
     });
     alert('Deleted!');
+    form.reset();
+    editingServiceId = null;
+    form.querySelector('button[type="submit"]').textContent = 'Add Service';
     loadServices();
   } catch (err) {
     alert("Delete failed");

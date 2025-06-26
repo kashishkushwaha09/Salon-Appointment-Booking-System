@@ -1,10 +1,10 @@
 const { AppError } = require("../utils/appError");
 const ServiceAvailability=require('../models/serviceAvailabilty');
-
+const sequelize= require('../utils/db-connection');
 const setAvailability=async(serviceId,newData)=>{
 try {
     
-    await ServiceAvailability.destroy({ where: { serviceId } });
+    // await ServiceAvailability.destroy({ where: { serviceId } });
     const availability=await ServiceAvailability.bulkCreate(newData);
        return availability;
     } catch (error) {
@@ -17,7 +17,10 @@ try {
 const getAll=async(ServiceId)=>{
     try {
     
-    const availability= await ServiceAvailability.findAll({ where: { ServiceId } });
+    const availability= await ServiceAvailability.findAll({
+         where: { ServiceId },
+        order: [sequelize.literal(`FIELD(dayOfWeek, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')`)]
+         });
        return availability;
     } catch (error) {
         if (!(error instanceof AppError)) {
