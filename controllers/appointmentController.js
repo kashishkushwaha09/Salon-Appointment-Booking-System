@@ -177,7 +177,7 @@ const getAllAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.findAll({
   include: [
-    { model: User, attributes: ['name', 'email'] },,
+    { model: User, attributes: ['name', 'email'] },
     { model: Service },
      {
       model: Staff,

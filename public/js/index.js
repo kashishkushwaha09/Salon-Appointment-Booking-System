@@ -13,8 +13,9 @@ const url='http://localhost:2000/api';
         tag.style.display = 'none';
       }
     });
-    if(user.role ==='customer'){
-        document.querySelector('.customer').style.display='block'
+    if(user.role ==='customer' || user.role ==='staff'){
+        document.querySelector('.customer').style.display='block';
+        document.querySelector('.staff').style.display='block'
     }
     document.getElementById('logoutItem').style.display = 'block';
   } else {

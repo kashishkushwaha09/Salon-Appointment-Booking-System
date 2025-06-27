@@ -73,7 +73,9 @@ const deleteReview = async (req, res) => {
   try {
     const reviewId = req.params.id;
     const reply = req.body.reply;
-
+if (req.user.role !== 'staff' && req.user.role !== 'admin') {
+  throw new AppError('Unauthorized to reply to reviews', 403);
+}
     if (!reply) {
       throw new AppError('Reply cannot be empty', 400);
     }
@@ -104,8 +106,30 @@ const getAllReviews = async (req, res) => {
 
     res.status(200).json({ reviews });
   } catch (err) {
-    next(err);
+    console.error("Error fetching reviews ", err);
+   throw new AppError('Failed to fetch reviews',500);
+  }
+};
+const getReviewByAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+     const review = await Review.findOne({
+      where: { appointmentId:id },
+      include: [
+        { model: Service },
+        { model: Staff },
+        { model: User, attributes: ['name', 'email'] }
+      ]
+    });
+    
+    if (!review) {
+      return res.status(404).json({ message: "Review not found for this appointment" });
+    }
+    res.status(200).json({ review });
+  } catch (err) {
+   console.error("Error fetching review by appointmentId:", err);
+   throw new AppError('Failed to fetch review',500);
   }
 };
 
-module.exports={addReview,updateReview,deleteReview,replyToReview,getAllReviews};
+module.exports={addReview,updateReview,deleteReview,replyToReview,getAllReviews,getReviewByAppointment};
