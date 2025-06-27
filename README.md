@@ -4,7 +4,7 @@ The Salon Appointment Booking System is designed to streamline the scheduling an
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/your-username/salon-booking-app.git](https://github.com/kashishkushwaha09/Salon-Appointment-Booking-System.git)
-   cd salon-booking-app
+   git clone https://github.com/kashishkushwaha09/Salon-Appointment-Booking-System.git
+   cd salon-appointment-booking-app
    npm install
 
