@@ -5,6 +5,7 @@ const StaffAvailability=require('./staffAvailability')
 const Appointment=require('./appointmentModel');
 const User=require('./userModel');
 const Review=require('./reviewModel');
+const Order=require('./orderModel');
 Service.hasMany(ServiceAvailability);
 ServiceAvailability.belongsTo(Service);
 
@@ -51,7 +52,9 @@ Service.hasMany(Review, { foreignKey: 'serviceId' });
 Review.belongsTo(Staff, { foreignKey: 'staffId' });
 Staff.hasMany(Review, { foreignKey: 'staffId' });
 
+User.hasMany(Order, { foreignKey: 'userId' });
+Order.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports={
-    Service,ServiceAvailability,Staff,StaffAvailability,Appointment,Review
+    Service,ServiceAvailability,Staff,StaffAvailability,Appointment,Review,Order
 }

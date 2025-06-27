@@ -8,7 +8,8 @@ async function loginUser(loginData) {
     console.log(res.data);
     localStorage.setItem('token', res.data.token);
 localStorage.setItem('user', JSON.stringify(res.data.user));
-    // window.location.href = '/dashboard.html';
+
+    window.location.href = '/index.html';
   } catch (err) {
     console.error(err);
     alert('Login  failed');

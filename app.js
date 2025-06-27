@@ -15,6 +15,7 @@ const availabilityRoute=require('./routes/availabilityRoute');
 const staffRoute=require('./routes/staffRoute');
 const appointmentRoute=require('./routes/appointmentRoute');
 const adminRoute=require('./routes/adminRoute');
+const paymentRoute=require('./routes/paymentRoute');
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
@@ -24,6 +25,7 @@ app.use('/api/services',authenticateUser,serviceRoute);
 app.use('/api/availability',authenticateUser,availabilityRoute);
 app.use('/api/staff',authenticateUser,staffRoute);
 app.use('/api/appointments',authenticateUser,appointmentRoute);
+app.use('/api/payment',paymentRoute);
 app.use('/api/adminDashboard',adminRoute);
 app.use(errorMiddleware);
 

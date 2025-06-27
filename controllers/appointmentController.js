@@ -87,6 +87,22 @@ const getAvailableSlots = async (req, res) => {
     }
 
 }
+const validateBeforePayment = async (req, res) => {
+  try {
+    const { serviceId, staffId, date, startTime } = req.body;
+
+    const service = await Service.findByPk(serviceId);
+    if (!service) throw new AppError("Service not found", 404);
+
+    const existing = await Appointment.findOne({ where: { staffId, date, startTime } });
+    if (existing) throw new AppError("Slot already booked", 400);
+
+    res.status(200).json({ valid: true });
+  } catch (error) {
+     console.error(error);
+  throw new AppError(error.message, 500);
+  }
+};
 const bookAppointment = async (req, res) => {
   try {
     const { serviceId, staffId, date, startTime } = req.body;
@@ -106,7 +122,7 @@ const bookAppointment = async (req, res) => {
     if (existing) 
       throw new AppError('This slot is already booked',400);
     
-    const [hr, min] = startTime.split(":").map(Number);
+    
     const startDateTime = new Date(`${date}T${startTime}`);
     const endDateTime = new Date(startDateTime.getTime() + service.duration * 60000);
     const endTime = endDateTime.toTimeString().substring(0, 5);
@@ -251,8 +267,7 @@ const isOwner = req.user.id === appointment.userId;
     if (!isAdmin && !isOwner) {
   throw new AppError('You are not authorized to modify this appointment', 403);
 }
-     appointment.status = 'cancelled';
-     await appointment.save();
+    await appointment.destroy();
        const service = appointment.Service;
     const user = appointment.User;
 
@@ -275,5 +290,5 @@ const isOwner = req.user.id === appointment.userId;
 };
 
 module.exports={
-    getAvailableSlots,bookAppointment,getMyAppointments,getAllAppointments,rescheduleAppointment,cancelAppointment
+    validateBeforePayment,getAvailableSlots,bookAppointment,getMyAppointments,getAllAppointments,rescheduleAppointment,cancelAppointment
 }

@@ -67,7 +67,7 @@ async function loadStaff() {
           <p><strong>Specializations:</strong> ${s.specializations.join(", ")}</p>
           <p>${s.bio || ''}</p>
          <div class="d-flex justify-content-evenly mt-3">
-            <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/public/assign-services.html?staffId=${s.id}'">Assign Services</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/assign-services.html?staffId=${s.id}'">Assign Services</button>
             <button class="btn btn-sm btn-warning" onclick="editStaff(${s.id})">Edit</button>
             <button class="btn btn-sm btn-danger" onclick="deleteStaff(${s.id})">Delete</button>
           </div>

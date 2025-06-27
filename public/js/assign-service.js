@@ -83,7 +83,7 @@ document.getElementById('assignBtn').addEventListener('click', async () => {
     });
 
     alert("Services assigned successfully!");
-    window.location.href = "/public/admin-staff.html";
+    window.location.href = "/admin-staff.html";
   } catch (err) {
     console.error(err);
     alert("No valid services match staff's skill and schedule");
